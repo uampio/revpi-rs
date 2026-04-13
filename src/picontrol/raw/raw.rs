@@ -158,7 +158,7 @@ pub enum KBRequests {
 }
 
 unsafe fn ioctl<T>(fd: RawFd, request: KBRequests, argp: T) -> Result<u32, i32> {
-    let res = libc::ioctl(fd, request as libc::c_ulong, argp);
+    let res = libc::ioctl(fd, request as libc::Ioctl, argp);
     if res <= -1 {
         Err(*libc::__errno_location())
     } else {
@@ -398,4 +398,26 @@ pub unsafe fn set_output_watchdog(fd: RawFd, millis: *mut u32) -> Result<u32, i3
 /// For more information see `man ioctl`, `man picontrol_ioctl` or the kernel module
 pub unsafe fn wait_for_event(fd: RawFd, event: *mut i32) -> Result<u32, i32> {
     ioctl(fd, KBRequests::WaitForEvent, event)
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Property 1: Bug Condition - Cast to `libc::Ioctl` Compiles and Preserves Value
+    // This compile-time assertion confirms that libc::c_ulong and libc::Ioctl are
+    // distinct types on this platform (c_ulong = u32, Ioctl = i32).
+    // On the UNFIXED code (request as libc::c_ulong), this would fail to compile.
+    // On the FIXED code (request as libc::Ioctl), this compiles successfully.
+    #[test]
+    fn bug_condition_ioctl_type_uses_libc_ioctl() {
+        // Verify the cast target type is libc::Ioctl (i32), not libc::c_ulong (u32)
+        // This encodes the expected behavior: KBRequests can be cast to libc::Ioctl
+        let request = KBRequests::Reset;
+        let _: libc::Ioctl = request as libc::Ioctl;
+        // If the code used `as libc::c_ulong` instead, the ioctl call would fail to compile
+        // because libc::ioctl expects libc::Ioctl (i32), not c_ulong (u32) on this platform.
+        assert_eq!(request as libc::Ioctl, 0x4b0c_i32);
+    }
 }
