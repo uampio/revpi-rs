@@ -118,7 +118,7 @@ pub enum Event {
 
 /// Rust bindings for the ioctls defined in [`piControl.h`](https://github.com/RevolutionPi/piControl/blob/master/piControl.h#L94)
 #[derive(Debug, PartialEq, Eq)]
-#[repr(u64)]
+#[repr(i32)]
 pub enum KBRequests {
     // reset the piControl driver including the config file
     Reset = 0x4b0c,
