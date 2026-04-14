@@ -85,6 +85,7 @@ pub struct SPIVariable {
     pub strVarName: [u8; 32],
     pub i16uAddress: u16,
     pub i8uBit: u8,
+    pub _pad: u8,
     pub i16uLength: u16,
 }
 
