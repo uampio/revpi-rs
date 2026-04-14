@@ -405,7 +405,7 @@ impl PiControlRaw {
             libc::ENOENT => PiControlError::NoVarEntries,
             // Some kernel versions return ENODEV when the variable name isn't found
             libc::ENODEV => PiControlError::InvalidArgument("name"),
-            e => panic!("unexpected errno from FindVariable ioctl: {e}"),
+            e => panic!("unexpected errno from FindVariable ioctl: {e} [v2-repr-fix]"),
         })?;
         Ok(var)
     }
